@@ -10,10 +10,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.*
+import androidx.lifecycle.lifecycleScope
 import com.dicoding.asclepius.R
 import com.dicoding.asclepius.databinding.ActivityMainBinding
+import com.dicoding.asclepius.helper.ImageClassifierHelper
+import kotlinx.coroutines.launch
+import org.tensorflow.lite.task.vision.classifier.Classifications
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -47,6 +50,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.galleryButton.setOnClickListener { startGallery() }
+        binding.analyzeButton.setOnClickListener {
+            currentImageUri?.let {
+                analyzeImage(it)
+            } ?: run {
+                showToast(getString(R.string.empty_image_warning))
+            }
+        }
     }
 
     private fun startGallery() {
@@ -72,15 +82,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun analyzeImage() {
+    private fun analyzeImage(image: Uri) {
         // TODO: Menganalisa gambar yang berhasil ditampilkan.
-        val intent = Intent(this, ResultActivity::class.java)
-        intent.putExtra(ResultActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
-        startActivity(intent)
+
+
+        val imageHelper = ImageClassifierHelper(
+            context = this,
+            classifierListener = object : ImageClassifierHelper.ClassifierListener {
+                override fun onError(error: String) {
+                    showToast(error)
+                }
+
+                override fun onResults(results: List<Classifications>?, inferenceTime: Long) {
+                    val resultString = results?.joinToString("\n") {
+                        val threshold = (it.categories[0].score * 100).toInt()
+                        "${it.categories[0].label} : ${threshold}%"
+                    }
+                    if (resultString != null) {
+                        this@MainActivity.runOnUiThread {
+                            moveToResult(image, resultString)
+                        }
+                    }
+                }
+
+            }
+        )
+        imageHelper.classifyStaticImage(image)
+
     }
 
-    private fun moveToResult() {
+    private fun moveToResult(image: Uri, resultString: String) {
         val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra(ResultActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
+        intent.putExtra(ResultActivity.EXTRA_RESULT, resultString)
         startActivity(intent)
     }
 
