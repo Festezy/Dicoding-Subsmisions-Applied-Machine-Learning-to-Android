@@ -4,14 +4,10 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.camera.core.ImageCapture
 import com.dicoding.asclepius.databinding.ActivityResultBinding
-import com.dicoding.asclepius.helper.ImageClassifierHelper
 
 class ResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResultBinding
-    private lateinit var imageClassifierHelper: ImageClassifierHelper
-    private var imageCapture: ImageCapture? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +25,7 @@ class ResultActivity : AppCompatActivity() {
 
         resultText?.let {
             Log.d("Image URI", "showImage: $it")
-            binding.resultText.text = it.toString()
+            binding.resultText.text = it
         }
     }
 

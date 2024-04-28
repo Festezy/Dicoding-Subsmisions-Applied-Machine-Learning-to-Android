@@ -11,11 +11,9 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.*
-import androidx.lifecycle.lifecycleScope
 import com.dicoding.asclepius.R
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
-import kotlinx.coroutines.launch
 import org.tensorflow.lite.task.vision.classifier.Classifications
 
 class MainActivity : AppCompatActivity() {
@@ -83,9 +81,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun analyzeImage(image: Uri) {
-        // TODO: Menganalisa gambar yang berhasil ditampilkan.
-
-
         val imageHelper = ImageClassifierHelper(
             context = this,
             classifierListener = object : ImageClassifierHelper.ClassifierListener {
@@ -100,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     if (resultString != null) {
                         this@MainActivity.runOnUiThread {
-                            moveToResult(image, resultString)
+                            moveToResult(resultString)
                         }
                     }
                 }
@@ -111,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun moveToResult(image: Uri, resultString: String) {
+    private fun moveToResult(resultString: String) {
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra(ResultActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
         intent.putExtra(ResultActivity.EXTRA_RESULT, resultString)
