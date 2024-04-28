@@ -15,5 +15,9 @@ class ResultActivity : AppCompatActivity() {
         // TODO: Menampilkan hasil gambar, prediksi, dan confidence score.
     }
 
+    companion object {
+        const val EXTRA_IMAGE_URI = "extra_image_uri"
+        const val EXTRA_RESULT = "extra_result"
+    }
 
 }
